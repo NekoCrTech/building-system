@@ -33,6 +33,10 @@ ABuildingModePawn::ABuildingModePawn()
 	TopDownCameraComponent->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	TopDownCameraComponent->bUsePawnControlRotation = false;
 
+	PanSensitivity = DefaultPanSensitivity;
+	ZoomStep = DefaultZoomStep;
+	MoveSpeedModifier = DefaultMoveSpeedModifier;
+
 }
 
 // Called when the game starts or when spawned
@@ -68,9 +72,10 @@ void ABuildingModePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(MouseMovement,ETriggerEvent::Triggered,this,&ABuildingModePawn::OnMouseMove);
 		EnhancedInputComponent->BindAction(RotateCamera,ETriggerEvent::Started, this, &ABuildingModePawn::OnRotateCameraStarted);
 		EnhancedInputComponent->BindAction(RotateCamera,ETriggerEvent::Completed, this, &ABuildingModePawn::OnRotateCameraFinished);
+		
 		//Secondary Keys
-		EnhancedInputComponent->BindAction(ZoomCamera,ETriggerEvent::Started, this, &ABuildingModePawn::OnSecondaryKeysStarted);
-		EnhancedInputComponent->BindAction(ZoomCamera,ETriggerEvent::Completed, this, &ABuildingModePawn::OnSecondaryKeysFinished);
+		EnhancedInputComponent->BindAction(SpeedUpEnabled,ETriggerEvent::Started, this, &ABuildingModePawn::OnSpeedUpStarted);
+		EnhancedInputComponent->BindAction(SpeedUpEnabled,ETriggerEvent::Completed, this, &ABuildingModePawn::OnSpeedUpFinished);
 
 		EnhancedInputComponent->BindAction(ResetCamera,ETriggerEvent::Triggered, this, &ABuildingModePawn::OnCameraReset);
 	}
@@ -149,14 +154,17 @@ void ABuildingModePawn::OnRotateCameraFinished()
 	bRotateEnabled = false;
 }
 
-void ABuildingModePawn::OnSecondaryKeysStarted()
+void ABuildingModePawn::OnSpeedUpStarted()
 {
-	bSecondaryKeysEnabled = true;
+	ZoomStep = 0.1 ;
+	MoveSpeedModifier = 3 ;
 }
 
-void ABuildingModePawn::OnSecondaryKeysFinished()
+void ABuildingModePawn::OnSpeedUpFinished()
 {
-	bSecondaryKeysEnabled = false;
+	PanSensitivity = DefaultPanSensitivity;
+	ZoomStep = DefaultZoomStep;
+	MoveSpeedModifier = DefaultMoveSpeedModifier;
 }
 
 

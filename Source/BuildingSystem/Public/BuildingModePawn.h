@@ -62,7 +62,7 @@ protected:
 	UInputAction* MouseMovement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* SecondaryKeysEnabled;
+	UInputAction* SpeedUpEnabled;
 
 	/** Input handlers */
 	void OnMoveCamera(const FInputActionValue& Value);
@@ -71,8 +71,8 @@ protected:
 	void OnMouseMove(const FInputActionValue& Value);
 	void OnRotateCameraStarted();
 	void OnRotateCameraFinished();
-	void OnSecondaryKeysStarted();
-	void OnSecondaryKeysFinished();
+	void OnSpeedUpStarted();
+	void OnSpeedUpFinished();
 
 
 private:
@@ -95,7 +95,7 @@ private:
 	float MoveSpeed = 10.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement Settings", meta = (AllowPrivateAccess = "true"))
-	float MoveSpeedModifier = 1.0f;
+	float DefaultMoveSpeedModifier = 1.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement Settings", meta = (AllowPrivateAccess = "true"))
 	UCurveFloat* ZoomCurve = nullptr;
@@ -104,10 +104,10 @@ private:
 	FVector2D ZoomLimits = FVector2D{300,1300};
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement Settings", meta = (AllowPrivateAccess = "true"))
-	float ZoomStep = 5.f;
+	float DefaultZoomStep = 0.01f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement Settings", meta = (AllowPrivateAccess = "true"))
-	float PanSensitivity = 5.f;
+	float DefaultPanSensitivity = 5.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement Settings", meta = (AllowPrivateAccess = "true"))
 	FVector2D ZoomRange = FVector2D(300.0f, 3000.0f);
@@ -115,7 +115,6 @@ private:
 	FVector MovementVector = FVector::ZeroVector;
 	float DeltaZoomAmount = 0.5f;
 	float ZoomAmount = 0.5f;
-	bool bSecondaryKeysEnabled = false;
 	bool bRotateEnabled = false;
 
 	void BasicCameraMovement(FVector2D AxisValue);
@@ -125,5 +124,8 @@ private:
 	void ZoomIn();
 	void ZoomOut();
 	float GetZoomFromCurve(float ZoomAlpha);
-
+	
+	float PanSensitivity;
+	float ZoomStep;
+	float MoveSpeedModifier;
 };
