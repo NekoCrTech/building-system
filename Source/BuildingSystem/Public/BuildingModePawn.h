@@ -53,10 +53,13 @@ protected:
 	UInputAction* ZoomCamera;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* ResetZoom;
+	UInputAction* ResetCamera;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* RotateCamera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* MouseMovement;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SecondaryKeysEnabled;
@@ -64,9 +67,12 @@ protected:
 	/** Input handlers */
 	void OnMoveCamera(const FInputActionValue& Value);
 	void OnZoomCamera(const FInputActionValue& Value);
-	void OnZoomReset(const FInputActionValue& Value);
-	void OnRotateCamera(const FInputActionValue& Value);
-	void OnSecondaryKeysEnabled(const FInputActionValue& Value);
+	void OnCameraReset(const FInputActionValue& Value);
+	void OnMouseMove(const FInputActionValue& Value);
+	void OnRotateCameraStarted();
+	void OnRotateCameraFinished();
+	void OnSecondaryKeysStarted();
+	void OnSecondaryKeysFinished();
 
 
 private:
@@ -98,10 +104,10 @@ private:
 	FVector2D ZoomLimits = FVector2D{300,1300};
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement Settings", meta = (AllowPrivateAccess = "true"))
-	float ZoomStep = 0.1f;
+	float ZoomStep = 5.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement Settings", meta = (AllowPrivateAccess = "true"))
-	float RotateStep = 100.0f;
+	float PanSensitivity = 5.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement Settings", meta = (AllowPrivateAccess = "true"))
 	FVector2D ZoomRange = FVector2D(300.0f, 3000.0f);
@@ -109,9 +115,10 @@ private:
 	FVector MovementVector = FVector::ZeroVector;
 	float DeltaZoomAmount = 0.5f;
 	float ZoomAmount = 0.5f;
+	bool bSecondaryKeysEnabled = false;
+	bool bRotateEnabled = false;
 
 	void BasicCameraMovement(FVector2D AxisValue);
-	
 	void ZoomEvent();
 
 	float GetMultipliedAxisValue(float AxisValue);

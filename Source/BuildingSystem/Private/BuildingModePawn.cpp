@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ABuildingModePawn::ABuildingModePawn()
@@ -15,13 +16,13 @@ ABuildingModePawn::ABuildingModePawn()
 	PrimaryActorTick.bCanEverTick = true;
 
 	SphereComponent=CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
-	SphereComponent->SetupAttachment(RootComponent);
+	RootComponent = SphereComponent;
 
 	// Create the camera boom component
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 
 	CameraBoom->SetupAttachment(SphereComponent);
-	CameraBoom->SetUsingAbsoluteRotation(true);
+	CameraBoom->SetUsingAbsoluteRotation(false);
 	CameraBoom->TargetArmLength = 800.f;
 	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
 	CameraBoom->bDoCollisionTest = false;
@@ -61,15 +62,18 @@ void ABuildingModePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	{
 		//Camera Movement
 		EnhancedInputComponent->BindAction(MoveCamera, ETriggerEvent::Triggered, this, &ABuildingModePawn::OnMoveCamera);
-		// Camera Zoom
+		//Camera Zoom
 		EnhancedInputComponent->BindAction(ZoomCamera,ETriggerEvent::Triggered, this, &ABuildingModePawn::OnZoomCamera);
-		EnhancedInputComponent->BindAction(ResetZoom,ETriggerEvent::Triggered, this, &ABuildingModePawn::OnZoomReset);
-	}
-	else
-	{
-		//UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
-	}
+		//Camera Rotation
+		EnhancedInputComponent->BindAction(MouseMovement,ETriggerEvent::Triggered,this,&ABuildingModePawn::OnMouseMove);
+		EnhancedInputComponent->BindAction(RotateCamera,ETriggerEvent::Started, this, &ABuildingModePawn::OnRotateCameraStarted);
+		EnhancedInputComponent->BindAction(RotateCamera,ETriggerEvent::Completed, this, &ABuildingModePawn::OnRotateCameraFinished);
+		//Secondary Keys
+		EnhancedInputComponent->BindAction(ZoomCamera,ETriggerEvent::Started, this, &ABuildingModePawn::OnSecondaryKeysStarted);
+		EnhancedInputComponent->BindAction(ZoomCamera,ETriggerEvent::Completed, this, &ABuildingModePawn::OnSecondaryKeysFinished);
 
+		EnhancedInputComponent->BindAction(ResetCamera,ETriggerEvent::Triggered, this, &ABuildingModePawn::OnCameraReset);
+	}
 }
 
 void ABuildingModePawn::NotifyControllerChanged()
@@ -86,7 +90,12 @@ void ABuildingModePawn::NotifyControllerChanged()
 	}
 }
 
+
+//-------------------
 /** Input handlers */
+//-------------------
+
+
 void ABuildingModePawn::OnMoveCamera(const FInputActionValue& Value)
 {
 	// input is a Vector2D
@@ -108,22 +117,52 @@ void ABuildingModePawn::OnZoomCamera(const FInputActionValue& Value)
 	}
 }
 
-void ABuildingModePawn::OnZoomReset(const FInputActionValue& Value)
+void ABuildingModePawn::OnCameraReset(const FInputActionValue& Value)
 {
+	// Reset Camera
 	DeltaZoomAmount = 0.5f;
+	// Reset Pan
+	SetActorRotation(FRotator(0, 0, 0));
+	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
 }
 
-void ABuildingModePawn::OnRotateCamera(const FInputActionValue& Value)
+void ABuildingModePawn::OnMouseMove(const FInputActionValue& Value)
 {
+	FVector2D MouseInput = Value.Get<FVector2D>();
+	if (bRotateEnabled==true)
+	{
+		FRotator CombinedRotation = UKismetMathLibrary::ComposeRotators(GetActorRotation(), FRotator(0,MouseInput.X*PanSensitivity,0));
+		SetActorRotation(CombinedRotation);
+
+		float BoomPitch = FMath::Clamp(GetCameraBoom()->GetRelativeRotation().Pitch + MouseInput.Y * PanSensitivity,-90,0);
+		CameraBoom->SetRelativeRotation(FRotator(BoomPitch, 0.f, 0.f));
+	}
 }
 
-void ABuildingModePawn::OnSecondaryKeysEnabled(const FInputActionValue& Value)
+void ABuildingModePawn::OnRotateCameraStarted()
 {
+	bRotateEnabled = true;
+}
+
+void ABuildingModePawn::OnRotateCameraFinished()
+{
+	bRotateEnabled = false;
+}
+
+void ABuildingModePawn::OnSecondaryKeysStarted()
+{
+	bSecondaryKeysEnabled = true;
+}
+
+void ABuildingModePawn::OnSecondaryKeysFinished()
+{
+	bSecondaryKeysEnabled = false;
 }
 
 
-
-
+//--------------------
+// Camera Effectors
+//--------------------
 
 
 
@@ -154,6 +193,7 @@ void ABuildingModePawn::ZoomEvent()
 	ZoomAmount = FMath::Lerp(ZoomAmount, DeltaZoomAmount,0.1f);
 	CameraBoom->TargetArmLength = GetZoomFromCurve(ZoomAmount);
 }
+
 
 //--------------------
 // UTILITIES FUNCTIONS
