@@ -6,7 +6,7 @@
 #include "Resources.generated.h"
 
 UENUM(BlueprintType)
-enum EResource : int32
+enum class EResource : uint8
 {
 	None UMETA(DisplayName = "None"),
 	Wood UMETA(DisplayName = "Wood"),
@@ -23,7 +23,7 @@ struct FResourceCount : public FTableRowBase
 	int32 ResourceCount=0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EResource Resource=EResource::None;
+	EResource Resource = EResource::None;
 
 	// Default constructor
 	FResourceCount()
