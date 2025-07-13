@@ -21,31 +21,31 @@ struct FBuildingPartData : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FText Name = FText();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	EBuildingPartType Type = EBuildingPartType::None;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FCurrentMaxInt Stability = FCurrentMaxInt();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FCost Cost = FCost();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<UStaticMeshComponent> ConstructionMeshes;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TObjectPtr<UStaticMesh> ConstructionMesh;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<UStaticMeshComponent> BaseMeshes;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TObjectPtr<UStaticMesh> BaseMesh;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<UStaticMeshComponent> DamagedMeshes;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TObjectPtr<UStaticMesh> DamagedMesh;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FText Description = FText();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float ConstructionTime = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
