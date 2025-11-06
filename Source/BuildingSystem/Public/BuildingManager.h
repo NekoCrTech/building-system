@@ -4,16 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "BuildingPart.h"
 #include "BuildingManager.generated.h"
 
-UENUM(BlueprintType)
-enum EConstructionStatus : int32
-{
-	Preview UMETA(DisplayName = "Preview"),
-	UnderConstruction UMETA(DisplayName = "UnderConstruction"),
-	Built UMETA(DisplayName = "Built"),
-	Damaged UMETA(DisplayName = "Damaged"),
-};
+
 
 UCLASS()
 class BUILDINGSYSTEM_API ABuildingManager : public AActor
@@ -23,13 +17,34 @@ class BUILDINGSYSTEM_API ABuildingManager : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ABuildingManager();
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UDataTable> BuildingPartData = nullptr;
+
+	UFUNCTION(BlueprintCallable)
+	FBuildingPartData GetBuildingPartData(FName RowName);
+	
+	UFUNCTION(BlueprintCallable)
+	void SetPreview(FName RowName);
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnPreviewMesh(FName RowName);
+
+	UFUNCTION(BlueprintCallable)
+	void DestroyPreview();
+
+	FORCEINLINE bool GetIsPreviewing() const { return bIsPreviewing; }
+	FORCEINLINE void SetIsPreviewing(const bool bValue) { bIsPreviewing = bValue; }
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+private:
 
+	FTransform PreviewTransform = FTransform::Identity;
+	
+	bool bIsPreviewing = false;
 };
